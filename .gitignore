@@ -1,0 +1,83 @@
+Skip to content
+This repository
+Search
+Pull requests
+Issues
+Marketplace
+Explore
+ @Dovermore
+Sign out
+2,483
+64,371 29,552 github/gitignore
+ Code  Pull requests 172  Projects 0  Insights
+gitignore/C.gitignore
+f76d089  on 1 Nov 2016
+@chaosdefinition chaosdefinition Update C.gitignore
+@rye @dashed @aarian93p @Leandros @snisarg @mattjeffery @dybekm @eugpermar @starrify @chaosdefinition @arsenm @adericbourg
+     
+53 lines (44 sloc)  430 Bytes
+# Prerequisites
+*.d
+
+# Object files
+*.o
+*.ko
+*.obj
+*.elf
+
+# Linker output
+*.ilk
+*.map
+*.exp
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# Kernel Module Compile Results
+*.mod*
+*.cmd
+.tmp_versions/
+modules.order
+Module.symvers
+Mkfile.old
+dkms.conf
+© 2018 GitHub, Inc.
+Terms
+Privacy
+Security
+Status
+Help
+Contact GitHub
+API
+Training
+Shop
+Blog
+About
+Press h to open a hovercard with more details.
