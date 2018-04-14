@@ -1,0 +1,38 @@
+# specifying the C Compiler and Compiler Flags for make to use
+CC     = gcc
+CFLAGS = -Wall -std=c99
+
+# exe name and a list of object files that make up the program
+EXE    = main_class
+OBJ    = main_class.o list.o stack.o queue.o graph.o heap.o edge_class.o
+
+
+# RULES - these tell make when and how to recompile parts of the project
+
+# the first rule runs by default when you run 'make' ('make rule' for others)
+# in our case, we probably want to build the whole project by default, so we
+# make our first rule have the executable as its target
+#  |
+#  v
+$(EXE): $(OBJ) # <-- the target is followed by a list of prerequisites
+	$(CC) $(CFLAGS) -o $(EXE) $(OBJ)
+
+
+# okay here's another rule, this time to help make create object files
+list.o: list.c list.h
+	$(CC) $(CFLAGS) -c list.c
+
+stack.o: stack.h list.h stack.c
+	$(CC) $(CFLAGS) -c stack.c
+
+queue.o: queue.h list.h queue.c
+	$(CC) $(CFLAGS) -c queue.c
+
+graph.o: graph.h graph.c
+	$(CC) $(CFLAGS) -c graph.c
+
+edge_class.o: graph.h edge_class.c
+	$(CC) $(CFLAGS) -c edge_class.c
+
+clean:
+	rm -f $(OBJ) $(EXE)
