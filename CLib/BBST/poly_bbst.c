@@ -12,6 +12,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <assert.h>
 #include <stdbool.h>
 #include "../Node/node.h"
@@ -30,6 +31,14 @@
 #define RIGHT      1
 
 #define CHILDNULL -1
+
+#define MAXITER    1000
+
+#define CLEAF      0
+#define CLEFT      1
+#define CRIGHT     2
+#define CLEFTRIGHT 3
+#define CRIGHTLEFT 4
 /* </MacroDefs> */
 
 
@@ -50,9 +59,20 @@ static Node *rotate_nodes(Node *node, int dir);
 static int get_nchild(Node *node);
 static int get_diff(Node *node);
 static int std_diff(int n, int thresh);
-// bool same_sign(int x, int y);
-// int get_sign(int x);
+static Node *retrieve_node(Tree *t, void *key)
+static void recursive_retrieve_node(Node *node, Node *ary[], int *ind);
+/*
+ * Replace the keys and values of node a with node b's
+ * but not childs
+ */
+static void replace_node(Node *a, Node *b);
+
+/*
+ * Helper function for returning the case integer in deleting nodes
+ */
+static int check_case(Node *node)
 /* </FunctionPrototypes> */
+
 
 Tree *new_tree(size_t skey, size_t sdata, int (*cmp)(void*, void*)) {
     Tree *t = (Tree*)malloc(sizeof*t);
@@ -65,97 +85,39 @@ Tree *new_tree(size_t skey, size_t sdata, int (*cmp)(void*, void*)) {
     return t;
 }
 
-// /*
-//  * Iterative insert (key, data) pair to tree while keeping the tree balanced
-//  */
-// void tree_insert(Tree *t, void *key, void *data) {
-//     assert(t != NULL);
 
-//     int dir_pprev = INVALID,       /* Who is this pointer? */
-//         dir_prev  = INVALID,       /* Where did it come from? */
-//         dir_next  = INVALID,       /* <del>Why is he dying</del> 
-//                                       Where is he going? */
-//         dir_nnext = INVALID,
-//         balance   = INVALID;
+void free_tree(Tree *t) {
+    assert(t != NULL);
+    recursive_free_node(t->root);
+    free(t);
+}
 
-//     bool found    = FALSE;
+static void recursive_free_node(Node *node) {
+    if (node == NULL) return;
+    recursive_free_node(cc(node, LEFT));
+    recursive_free_node(cc(node, RIGHT));
+    free_node(node);
+}
 
-//     Node *node    = new_tree_node(t),
-//          *grandpa = NULL,
-//          *parent  = NULL,
-//          *next    = NULL,
-//          *tmp     = t->root;
 
-//     /* Prepare the new node */
-//     ai(node, key, data, POS);
-//     aw(node, CHILDNULL + 1);
-
-//     /* Iterative insert to correct position */
-//     while (tmp != NULL && found == FALSE) {
-//         printf("update once +++++++++++++++++\n");
-//         /* Increase the number of child of tmp by one */
-//         aw(tmp, cw(tmp)+1);
-//         dir_next = t->cmp(ck(node, POS), ck(tmp, POS)) > 0 ? RIGHT : LEFT;
-//         next = cc(tmp, dir_next);
-
-//         /* If found the slot for next node */
-//         if (next == NULL) {
-//             next = node;
-//             ac(tmp, node, dir_next);
-//             found  = TRUE;
-//         }
-
-//         if (parent != NULL && (balance=check_balance(parent)) == dir_prev) {
-//             printf("not balanced\n");
-//             print_tree(t);
-//             /* zig-zag */
-//             if (dir_prev != dir_next) {
-//                 printf("zig-zag\n");
-//                 rotate_nodes(tmp, dir_next, parent, dir_prev);
-//                 print_tree(t);
-//                 printf("end zig-zag\n");
-//             }
-//             tmp = rotate_nodes(parent, dir_prev, grandpa, dir_pprev);
-//             if (grandpa == NULL) {
-//                 t->root = tmp;
-//             }
-//             print_tree(t);
-//         } else if (balance == !dir_prev) assert(0);
-//         grandpa = parent;
-//         parent = tmp;
-//         tmp = cc(tmp, dir_next);
-//         dir_pprev = dir_prev;
-//         dir_prev  = dir_next;
-//     }
-//     // printf("node %p\n", node);
-//     // printf("parent %p\n", parent);
-//     if (!found && t->nele > 0) ac(parent, node, dir_prev);
-//     else if (t->nele == 0) t->root = node;
-
-//     /* update number of element in the tree */
-//     t->nele++;
-// }
-
-/*
- * Iterative insert (key, data) pair to tree while keeping the tree balanced
- */
 void tree_insert(Tree *t, void *key, void *data) {
     assert(t != NULL);
 
     /* update number of element in the tree */
     t->nele++;
 
-    int log_nele  = 1, 
+    int log_nele  = 0, 
         nele      = t->nele;
-
     while (nele >>= 1) ++log_nele;
+    log_nele += 2;
 
     int dirs[log_nele],
         dir       = INVALID,
         blce      = INVALID,
         diff      = 0,
         prev_dir  = 0,
-        head      = 0;
+        head      = 0,
+        nchild    = CHILDNULL;
 
     bool found    = FALSE;
 
@@ -175,7 +137,6 @@ void tree_insert(Tree *t, void *key, void *data) {
         t->root = node;
         return;
     }
-
     /* Iterative insert to correct position */
     while (tmp != NULL && found == FALSE) {
         dir = t->cmp(ck(node, POS), ck(tmp, POS)) > 0 ? RIGHT : LEFT;
@@ -187,6 +148,118 @@ void tree_insert(Tree *t, void *key, void *data) {
     }
     tmp = node;
     ac(parent, node, dir);
+    /* now update the height of the tree and balance the tree */
+    while (head) {
+        ac(stack[head - 1], tmp, dirs[head - 1]);
+        tmp = stack[head - 1];
+        diff = get_diff(tmp);
+        blce = std_diff(diff, 1);
+        if (blce != INVALID) {
+            if (prev_dir != blce) {
+                ac(tmp, rotate_nodes(cc(tmp, blce), prev_dir), blce);
+            }
+            tmp = rotate_nodes(tmp, blce);
+        }
+        if ((nchild = get_nchild(tmp)) == cw(tmp)) {
+            // The child is not updated, So we can break here
+            break;
+        }
+        aw(tmp, nchild);
+        prev_dir = std_diff(diff, 0);
+        head--;
+    }
+    t->root = tmp;
+}
+
+
+
+void *delete_key(Tree *t, void *key) {
+    assert(t != NULL);
+
+    int log_nele  = 0, 
+        nele      = t->nele;
+    while (nele >>= 1) ++log_nele;
+    log_nele += 2;
+
+    int dirs[log_nele],
+        dir       = INVALID,
+        blce      = INVALID,
+        diff      = 0,
+        prev_dir  = 0,
+        head      = 0,
+        nchild    = CHILDNULL;
+
+    bool found    = FALSE;
+
+    Node *stack[log_nele],
+         *parent  = NULL,
+         *tmp     = t->root;
+
+    void *data    = NULL;
+
+    /* Iterative find position of the element with such key */
+    while (tmp != NULL) {
+        if ((dir = t->cmp(ck(node, POS), ck(tmp, POS))) > 0) {
+            dir = RIGHT;
+        } else if (dir < 0) {
+            dir = LEFT;
+        } else {
+            // found the element
+            break;
+        }
+        // record the path
+        stack[head] = tmp;
+        dirs[head]  = dir;
+        head++;
+        parent = tmp;
+        tmp = cc(tmp, dir);
+    }
+    // Cant find such key
+    if (tmp == NULL) return NULL;
+
+    /* now starts the cycle of replace and delete */
+    while (TRUE) {
+
+        stack[head] = tmp;
+        // These in the case
+        // dirs[head]  = dir;
+        // head++;      
+
+        switch(check_case(tmp)) {
+        
+            case CLEAF:
+                if (t->nele == 1) {
+                    t->root = NULL;
+                    return cd(tmp, POS);
+                    // free_node(tmp); since the data is stored in node
+                }
+                
+                break; /* optional */
+            
+            case CLEFT:
+                /* statement(s) */
+                break; /* optional */
+
+            case CRIGHT:
+                /* statement(s) */
+                break; /* optional */
+
+            case CLEFTRIGHT:
+                /* statement(s) */
+                break; /* optional */
+
+            case CRIGHTLEFT:
+                /* statement(s) */
+                break; /* optional */
+          
+            default:
+                printf("ERROR! case goes to bottom\n");
+                /* statement(s) */
+        }
+
+    }
+
+
 
     /* now update the height of the tree and balance the tree */
     while (head) {
@@ -194,63 +267,87 @@ void tree_insert(Tree *t, void *key, void *data) {
         tmp = stack[head - 1];
         diff = get_diff(tmp);
         blce = std_diff(diff, 1);
-
         if (blce != INVALID) {
             if (prev_dir != blce) {
                 ac(tmp, rotate_nodes(cc(tmp, blce), prev_dir), blce);
             }
             tmp = rotate_nodes(tmp, blce);
         }
-        aw(tmp, get_nchild(tmp));
+        if ((nchild = get_nchild(tmp)) == cw(tmp)) {
+            // The child is not updated, So we can break here
+            break;
+        }
+        aw(tmp, nchild);
         prev_dir = std_diff(diff, 0);
         head--;
     }
     t->root = tmp;
 }
 
-void check_data(Tree* t, void *key) {
+
+void *retrieve_data(Tree *t, void *key) {
+    assert(t != NULL);
+    assert(key != NULL);
+    return cd(retrieve_node(t, key), POS);
+}
+
+
+int retrieve_tree(Tree *t, void *key, void *data) {
+    static int head;
+    static Node *stack[MAXITER];
+    static Node *tmp = NULL;
+    
+    if (key == NULL || data == NULL) {
+        head = 0;
+        if (t->root != NULL) {
+            recursive_retrieve_node(t->root, stack, &head);
+        }
+        return TRUE;
+    }
+    if (head != 0) {
+        tmp = stack[head - 1];
+        head--;
+        memcpy((char*)key, ck(tmp, POS), t->skey);
+        memcpy((char*)data, cd(tmp, POS), t->sdata);
+        return TRUE;
+    }
+    return INVALID;
+}
+
+int tree_nele(Tree *t) {
+    assert(t!= NULL);
+    return t->nele;
+}
+
+
+
+/* =========================Static functions======================== */
+
+static void recursive_retrieve_node(Node *node, Node *ary[], int *ind) {
+    if (node == NULL) {
+        return;
+    }
+    recursive_retrieve_node(cc(node, RIGHT), ary, ind);
+    ary[*ind] = node;
+    (*ind)++;
+    recursive_retrieve_node(cc(node, LEFT), ary, ind);
+}
+
+
+static Node *retrieve_node(Tree *t, void *key) {
     Node *node = t->root;
     void *node_key = NULL;
     while (node != NULL) {
         node_key = ck(node, POS);
         if (t->cmp(key, node_key) > 0) {
-            printf("key %d larger than %d\n", *(int*)key, *(int*)node_key);
             node = cc(node, RIGHT);
         } else if (t->cmp(key, node_key) == 0) {
-            printf("Found key %d! with data %f\n", *(int*)key,
-                                            *(float*)cd(node, POS));
-            return;
+            return node;
         } else {
-            printf("key %d less than %d\n", *(int*)key, *(int*)node_key);
             node = cc(node, LEFT);
         }
     }
-    printf("didn't find the record\n"); 
-}
-
-
-void print_tree(Tree *t) {
-    int start = 0, end = 0, num = t->nele+1;
-    Node *queue[num],
-         *tmp = NULL;
-    if (t->root != NULL) {
-        queue[end] = t->root;
-        end = (end + 1)%(num + 1);
-    }
-    while (start != end) {
-        tmp = queue[start];
-        start = (start + 1)%num;
-        if (cc(tmp, LEFT) != NULL) {
-            queue[end] = cc(tmp, LEFT);
-            end = (end + 1)%num;
-        }
-        if (cc(tmp, RIGHT) != NULL) {
-            queue[end] = cc(tmp, RIGHT);
-            end = (end + 1)%num;
-        }
-        printf("------------------------------------------------\n");
-        printf("Node: address %p key= %d, weight= %d\n",tmp, *(int*)ck(tmp, POS), cw(tmp));
-    }
+    return NULL;  
 }
 
 
@@ -295,4 +392,68 @@ static int std_diff(int n, int thresh) {
     if (n > thresh) return LEFT;
     else if (n < -thresh) return RIGHT;
     else return INVALID;
+}
+
+
+static void replace_node(Node *a, Node *b) {
+    ak(a, ck(b, POS), POS);
+    ad(a, cd(b, POS), POS);
+}
+
+static int check_case(Node *node) {
+    Node *left   = cc(node, LEFT),
+         *right  = cc(node, RIGHT),
+         *lright = NULL,
+         *rleft  = NULL;
+
+    int nleft    = CHILDNULL,
+        nright   = CHILDNULL,
+        diff     = get_diff(node);
+
+    if (left == NULL && right == NULL) {
+        return CLEAF;
+    } else if (left == NULL) {
+        return CRIGHT;
+    } else if (RIGHT == NULL) {
+        return CLEFT;
+    } else {
+        lright = cc(left, RIGHT);
+        rleft  = cc(right, LEFT);
+        if (lright != NULL) {
+            return CLEFTRIGHT;
+        } else if (rleft != NULL) {
+            return CRIGHTLEFT
+        } else {
+            return CLEFT;
+        }
+    }
+}
+
+
+
+void test_tree(Tree *t) {
+    int start = 0, end = 0, num = t->nele+1;
+    Node *queue[num],
+         *tmp = NULL;
+    if (t->root != NULL) {
+        queue[end] = t->root;
+        end = (end + 1)%(num + 1);
+    }
+    while (start != end) {
+        tmp = queue[start];
+        start = (start + 1)%num;
+        if (cc(tmp, LEFT) != NULL) {
+            queue[end] = cc(tmp, LEFT);
+            end = (end + 1)%num;
+        }
+        if (cc(tmp, RIGHT) != NULL) {
+            queue[end] = cc(tmp, RIGHT);
+            end = (end + 1)%num;
+        }
+        printf("------------------------------------------------\n");
+        printf("Node: address %p key= %d, weight= %d\n",tmp,
+                                                *(int*)ck(tmp, POS), cw(tmp));
+        printf("      Left child %p, Right child %p\n", cc(tmp, LEFT),
+                                                        cc(tmp, RIGHT));
+    }
 }
