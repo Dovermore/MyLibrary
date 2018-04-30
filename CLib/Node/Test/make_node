@@ -1,0 +1,31 @@
+# specifying the C Compiler and Compiler Flags for make to use
+CC     = gcc
+CFLAGS = -Wall -std=c99
+
+# exe name and a list of object files that make up the program
+EXE    = node_main
+OBJ    = node_main.o node.o
+
+PNODE   = ../
+NODEC   = $(PNODE)node.c
+NODEH   = $(PNODE)node.h
+
+
+
+
+PNODE_MAIN   = ./
+NODE_MAINC   = $(PNODE_MAIN)node_main.c
+
+
+
+$(EXE): $(OBJ)
+	$(CC) $(CFLAGS) -o $(EXE) $(OBJ)
+
+node.o: $(NODEC) $(NODEH)
+	$(CC) $(CFLAGS) -c $(NODEC)
+
+node_main.o: $(NODE_MAINC)
+	$(CC) $(CFLAGS) -c $(NODE_MAINC)
+
+clean:
+	rm -f $(OBJ) $(EXE)

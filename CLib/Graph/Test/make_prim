@@ -1,0 +1,73 @@
+# specifying the C Compiler and Compiler Flags for make to use
+CC     = gcc
+CFLAGS = -Wall -std=c99
+
+# exe name and a list of object files that make up the program
+EXE    = main_prim
+OBJ    = main_prim.o graph.o item.o queue.o stack.o empty_search.o list.o heap.o
+
+PHEAP   = ../../Heap/
+HEAPC   = $(PHEAP)heap.c
+HEAPH   = $(PHEAP)heap.h
+
+
+
+
+PMAIN_PRIM   = ./
+MAIN_PRIMC   = $(PMAIN_PRIM)main_prim.c
+
+PEMPTY_SEARCH   = ../
+EMPTY_SEARCHC   = $(PEMPTY_SEARCH)empty_search.c
+
+PGRAPH   = ../
+GRAPHC   = $(PGRAPH)graph.c
+GRAPHH   = $(PGRAPH)graph.h
+
+PITEM   = ../../Item/
+ITEMC   = $(PITEM)item.c
+ITEMH   = $(PITEM)item.h
+
+PQUEUE   = ../../LinkedList/
+QUEUEC   = $(PQUEUE)queue.c
+QUEUEH   = $(PQUEUE)queue.h
+
+PSTACK   = ../../LinkedList/
+STACKC   = $(PSTACK)stack.c
+STACKH   = $(PSTACK)stack.h
+
+PLIST  = ../../LinkedList/
+LISTC  = $(PLIST)list.c
+LISTH   = $(PLIST)list.h
+
+
+
+
+$(EXE): $(OBJ)
+	$(CC) $(CFLAGS) -o $(EXE) $(OBJ)
+
+graph.o: $(GRAPHC) $(GRAPHH)
+	$(CC) $(CFLAGS) -c $(GRAPHC)
+
+main_prim.o: $(MAIN_PRIMC)
+	$(CC) $(CFLAGS) -c $(MAIN_PRIMC)
+
+list.o: $(LISTC) $(LISTH)
+	$(CC) $(CFLAGS) -c $(LISTC)
+
+empty_search.o: $(EMPTY_SEARCHC)
+	$(CC) $(CFLAGS) -c $(EMPTY_SEARCHC)
+
+stack.o: $(STACKC) $(STACKH)
+	$(CC) $(CFLAGS) -c $(STACKC)
+
+queue.o: $(QUEUEC) $(QUEUEH)
+	$(CC) $(CFLAGS) -c $(QUEUEC)
+
+item.o: $(ITEMC) $(ITEMH)
+	$(CC) $(CFLAGS) -c $(ITEMC)
+
+heap.o: $(HEAPC) $(HEAPH)
+	$(CC) $(CFLAGS) -c $(HEAPC)
+
+clean:
+	rm -f $(OBJ) $(EXE)

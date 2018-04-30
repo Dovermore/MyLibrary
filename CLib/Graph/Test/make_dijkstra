@@ -1,0 +1,74 @@
+# specifying the C Compiler and Compiler Flags for make to use
+CC     = gcc
+CFLAGS = -Wall -std=c99
+
+# exe name and a list of object files that make up the program
+EXE    = main_dijkstra
+OBJ    = main_dijkstra.o list.o stack.o queue.o graph.o item.o empty_search.o heap.o
+
+PHEAP   = ../../Heap/
+HEAPC   = $(PHEAP)heap.c
+HEAPH   = $(PHEAP)heap.h
+
+
+PGRAPH   = ../
+GRAPHC   = $(PGRAPH)graph.c
+GRAPHH   = $(PGRAPH)graph.h
+
+PITEM   = ../../Item/
+ITEMC   = $(PITEM)item.c
+ITEMH   = $(PITEM)item.h
+
+PQUEUE   = ../../LinkedList/
+QUEUEC   = $(PQUEUE)queue.c
+QUEUEH   = $(PQUEUE)queue.h
+
+PSTACK   = ../../LinkedList/
+STACKC   = $(PSTACK)stack.c
+STACKH   = $(PSTACK)stack.h
+
+PLIST  = ../../LinkedList/
+LISTC  = $(PLIST)list.c
+LISTH   = $(PLIST)list.h
+
+PMAIN_DIJKSTRA   = ./
+MAIN_DIJKSTRAC   = $(PMAIN_DIJKSTRA)main_dijkstra.c
+
+PEMPTY_SEARCH   = ../
+EMPTY_SEARCHC   = $(PEMPTY_SEARCH)empty_search.c
+
+
+
+
+
+
+$(EXE): $(OBJ)
+	$(CC) $(CFLAGS) -o $(EXE) $(OBJ)
+
+
+list.o: $(LISTC) $(LISTH)
+	$(CC) $(CFLAGS) -c $(LISTC)
+
+main_dijkstra.o: $(MAIN_DIJKSTRAC)
+	$(CC) $(CFLAGS) -c $(MAIN_DIJKSTRAC)
+
+empty_search.o: $(EMPTY_SEARCHC)
+	$(CC) $(CFLAGS) -c $(EMPTY_SEARCHC)
+
+graph.o: $(GRAPHC) $(GRAPHH)
+	$(CC) $(CFLAGS) -c $(GRAPHC)
+
+stack.o: $(STACKC) $(STACKH)
+	$(CC) $(CFLAGS) -c $(STACKC)
+
+queue.o: $(QUEUEC) $(QUEUEH)
+	$(CC) $(CFLAGS) -c $(QUEUEC)
+
+item.o: $(ITEMC) $(ITEMH)
+	$(CC) $(CFLAGS) -c $(ITEMC)
+
+heap.o: $(HEAPC) $(HEAPH)
+	$(CC) $(CFLAGS) -c $(HEAPC)
+
+clean:
+	rm -f $(OBJ) $(EXE)

@@ -1,0 +1,39 @@
+# specifying the C Compiler and Compiler Flags for make to use
+CC     = gcc
+CFLAGS = -Wall -std=c99
+
+# exe name and a list of object files that make up the program
+EXE    = main_bbst
+OBJ    = main_bbst.o poly_bbst.o node.o
+
+PNODE   = ../../Node/
+NODEC   = $(PNODE)node.c
+NODEH   = $(PNODE)node.h
+
+
+PPOLY_BBST   = ../
+POLY_BBSTC   = $(PPOLY_BBST)poly_bbst.c
+POLY_BBSTH   = $(PPOLY_BBST)poly_bbst.h
+
+
+
+
+PMAIN_BBST   = ./
+MAIN_BBSTC   = $(PMAIN_BBST)main_bbst.c
+
+
+
+$(EXE): $(OBJ)
+	$(CC) $(CFLAGS) -o $(EXE) $(OBJ)
+
+main_bbst.o: $(MAIN_BBSTC)
+	$(CC) $(CFLAGS) -c $(MAIN_BBSTC)
+
+poly_bbst.o: $(POLY_BBSTC) $(POLY_BBSTH)
+	$(CC) $(CFLAGS) -c $(POLY_BBSTC)
+
+node.o: $(NODEC) $(NODEH)
+	$(CC) $(CFLAGS) -c $(NODEC)
+
+clean:
+	rm -f $(OBJ) $(EXE)

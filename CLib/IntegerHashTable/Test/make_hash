@@ -1,0 +1,27 @@
+# specifying the C Compiler and Compiler Flags for make to use
+CC     = gcc
+CFLAGS = -Wall -std=c99
+
+# exe name and a list of object files that make up the program
+EXE    = main_hash
+OBJ    = main_hash.o item.o inthash.o hashfunc.o
+
+
+$(EXE): $(OBJ)
+	$(CC) $(CFLAGS) -o $(EXE) $(OBJ)
+
+# okay here's another rule, this time to help make create object files
+inthash.o: inthash.h inthash.c
+	$(CC) $(CFLAGS) -c inthash.c
+
+hashfunc.o: hashfunc.c
+	$(CC) $(CFLAGS) -c hashfunc.c
+
+item.o: item.h item.c
+	$(CC) $(CFLAGS) -c item.c
+
+main_hash.o: main_hash.c
+	$(CC) $(CFLAGS) -c main_hash.c
+
+clean:
+	rm -f $(OBJ) $(EXE)
