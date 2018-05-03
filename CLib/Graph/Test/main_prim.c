@@ -27,7 +27,7 @@
 
 int
 main(int argc, char *argv[]) {
-    Graph g, gprim;
+    Graph *g, *gprim;
     int dir = 0,
         wei = 0;
     if (argc > 1) {
@@ -37,14 +37,14 @@ main(int argc, char *argv[]) {
         }
     }
 
-    read_graph(&g, dir, wei);
-    print_graph(&g);
+    g = read_graph(dir, wei);
+    print_graph(g);
     printf("Prim find minimal spanning tree\n");
-    initialize_search(&g);
-    prim(&g, &gprim);
-    free_graph(&g);
+    initialize_search(g);
+    gprim = prim(g);
+    free_graph(g);
     printf("print prim\n");
-    print_graph(&gprim);
-    free_graph(&gprim);
+    print_graph(gprim);
+    free_graph(gprim);
     return 0;
 }

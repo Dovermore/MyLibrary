@@ -1,9 +1,11 @@
 /*****************************************************************************
- *Author          Calvin Zhuoqun Huang ()
- *Licence         None
+ *Author          Calvin Zhuoqun Huang
+ *Licence         MIT Licence
  *File Name       poly_bbst.c
  *Space for Tab   YES
  *Tab size        4
+ *Time Created    30 April 2018 (Monday)
+ *Last Edited     30 April 2018 (Monday)
 
  *Brief:
     Polymophical Balance binary search tree
@@ -172,7 +174,7 @@ void tree_insert(Tree *t, void *key, void *data) {
 }
 
 
-
+/* Still not finished */
 void *delete_key(Tree *t, void *key) {
     assert(t != NULL);
 
@@ -233,7 +235,7 @@ void *delete_key(Tree *t, void *key) {
                     return cd(tmp, POS);
                     // free_node(tmp); since the data is stored in node
                 }
-                
+
                 break; /* optional */
             
             case CLEFT:

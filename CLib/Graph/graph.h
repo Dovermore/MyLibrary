@@ -19,12 +19,11 @@
 #ifndef _GRAPH_H
 #define _GRAPH_H
 
-
-#include <stdbool.h>
-
 #define MAXV 1000 /* maximum number of vertices */
 
-typedef struct {
+typedef struct graph_s Graph;
+
+typedef struct search_s {
     bool processed[MAXV];   /* which vertices have been processed */
     bool discovered[MAXV];  /* which vertices have been found */
     int parent[MAXV];       /* discovery relation */
@@ -39,7 +38,7 @@ typedef struct edgenode_s {
     struct edgenode_s *next; /* next edge in list */
 } Edgenode;
 
-typedef struct {
+struct graph_s {
     Edgenode *edges[MAXV];   /* adjacency info */
     int degree[MAXV];        /* outdegree of each vertex */
     int nvertices;           /* number of vertices in graph */
@@ -47,7 +46,7 @@ typedef struct {
     bool directed;           /* is the graph directed? */
     bool weighted;           /* is the graph weighted? */
     Search search;
-} Graph;
+};
 
 typedef struct dist_s {
     int start;
@@ -55,10 +54,11 @@ typedef struct dist_s {
 } Dist;
 
 
+
 /*
  * initialize the graph
  */
-void initialize_graph(Graph *g, bool directed, bool weighted);
+Graph *new_graph(bool directed, bool weighted);
 
 /*
  * Read the graph to struct
@@ -66,7 +66,7 @@ void initialize_graph(Graph *g, bool directed, bool weighted);
  * the first %d %d for number of vertices and edges
  * then each %d %d denote edges.
  */
-void read_graph(Graph *g, bool directed, bool weighted);
+Graph *read_graph(bool directed, bool weighted);
 
 /*
  * Insert edge to graph
@@ -135,7 +135,7 @@ int dijkstra_path(Graph *g, int start, int end);
  * g is pointer to original graph
  * gprim is an UNINITIALIED Graph!!
  */
-void prim(Graph *g, Graph *gprim);
+Graph *prim(Graph *g);
 
 
 #endif

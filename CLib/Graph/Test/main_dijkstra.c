@@ -27,7 +27,7 @@
 
 int
 main(int argc, char *argv[]) {
-    Graph g;
+    Graph *g;
     int dir = 0,
         wei = 0,
         i   = 0,
@@ -41,18 +41,17 @@ main(int argc, char *argv[]) {
         }
     }
 
-    read_graph(&g, dir, wei);
+    g = read_graph(dir, wei);
     printf("dijkstra_search\n");
-    initialize_search(&g);
-    di = dijkstra_search(&g, start);
-    for (i=0; i<g.nvertices; i++) {
+    di = dijkstra_search(g, start);
+    for (i=0; i<g->nvertices; i++) {
         printf("To %d dist %d\n", i, di->dist[i]);
     }
     printf("dijkstra_path\n");
-    initialize_search(&g);
-    i = dijkstra_path(&g, start, end);
+    initialize_search(g);
+    i = dijkstra_path(g, start, end);
     printf("from point %d to point %d intotal took %d time\n", start, end, i);
-    print_graph(&g);
-    free_graph(&g);
+    print_graph(g);
+    free_graph(g);
     return 0;
 }

@@ -1,8 +1,11 @@
 /*****************************************************************************
- *Author   : Calvin Zhuoqun Huang
- *Licence  : None
- *File Name: node.c
- 
+ *Author          Calvin Zhuoqun Huang
+ *Licence         MIT Licence
+ *File Name       node.c
+ *Space for Tab   YES
+ *Tab size        4
+ *Time Created    27 April 2018 (Friday)
+
  *Brief:
     General purpose node library
  *It's not supposed to be shared without permission of author.

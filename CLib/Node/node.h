@@ -1,3 +1,16 @@
+/*****************************************************************************
+ *Author          Calvin Zhuoqun Huang
+ *Licence         MIT Licence
+ *File Name       node.h
+ *Space for Tab   YES
+ *Tab size        4
+ *Time Created    27 April 2018 (Friday)
+
+ *Brief:
+    Header file of General purpose node library
+ *It's not supposed to be shared without permission of author.
+ ****************************************************************************/
+
 //node.h file
 #ifndef _node_h
 #define _node_h

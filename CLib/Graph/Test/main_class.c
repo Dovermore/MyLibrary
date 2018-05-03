@@ -27,7 +27,6 @@
 
 int
 main(int argc, char *argv[]) {
-    Graph g;
     int dir = 0,
         wei = 0;
     if (argc > 1) {
@@ -36,10 +35,10 @@ main(int argc, char *argv[]) {
             wei = atoi(argv[2]);
         }
     }
-
-    read_graph(&g, dir, wei);
+    Graph *g = read_graph(dir, wei);
     printf("dfs\n");
-    initialize_search(&g);
-    dfs(&g, 0);
+    initialize_search(g);
+    dfs(g, 0);
+    free_graph(g);
     return 0;
 }

@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
+#include <stdbool.h>
 #include "../LinkedList/list.h"
 #include "../LinkedList/queue.h"
 #include "../LinkedList/stack.h"
@@ -35,22 +36,27 @@
 /* </MacroDefs> */
 
 
-void initialize_graph(Graph *g, bool directed, bool weighted) {
+
+
+Graph *new_graph(bool directed, bool weighted) {
     int i; /* counter */
+    Graph *g = (Graph*)malloc(sizeof*g);
     g->nvertices = 0;
     g->nedges = 0;
     g->directed = directed;
     g->weighted = weighted;
     for (i=0; i<MAXV; i++) g->degree[i] = 0;
     for (i=0; i<MAXV; i++) g->edges[i] = NULL;
+
+    return g;
 }
 
 
-void read_graph(Graph *g, bool directed, bool weighted) {
+Graph *read_graph(bool directed, bool weighted) {
     int i; /* counter */
     int m; /* number of edges */
     int x, y, w=0; /* vertices in edge (x,y) and weight w */
-    initialize_graph(g, directed, weighted);
+    Graph *g = new_graph(directed, weighted);
     scanf("%d %d",&(g->nvertices),&m);
     if (weighted) {
         for (i=0; i<m; i++) {
@@ -63,6 +69,7 @@ void read_graph(Graph *g, bool directed, bool weighted) {
             insert_edge(g,x,y,w);
         }
     }
+    return g;
 }
 
 
@@ -93,9 +100,9 @@ void insert_edge(Graph *g, int x, int y, int w) {
         g->edges[y]=p;
         g->degree[y]++;
     }
-    else {
-        g->nedges++;
-    }
+    /* Different from book's implementation because here the reverse add didn't
+       use recursion solution. Thus won't increment g->nedges */
+    g->nedges++;
 }
 
 
@@ -132,6 +139,7 @@ void free_graph(Graph *g) {
         p = g->edges[i];
         recursive_free_edgenodes(p);
     }
+    free(g);
 }
 
 
@@ -334,7 +342,7 @@ int dijkstra_path(Graph *g, int start, int end) {
 }
 
 
-void prim(Graph *g, Graph *gprim) {
+Graph *prim(Graph *g) {
     assert(g->weighted);
 
     Heap *h = new_heap(g->nedges);
@@ -350,7 +358,7 @@ void prim(Graph *g, Graph *gprim) {
         starts[g->nedges],
         ends  [g->nedges];
 
-    initialize_graph(gprim, g->directed, g->weighted);
+    Graph *gprim = new_graph(g->directed, g->weighted);
     gprim->nvertices = g->nvertices;
 
     for (i = 0; i < g->nvertices; i++) {
@@ -390,4 +398,5 @@ void prim(Graph *g, Graph *gprim) {
             }
         }
     }
+    return gprim;
 }
